@@ -1,0 +1,136 @@
+- id: '1673297282375'
+  alias: Aqara Magic Cube 57
+  description: ''
+  use_blueprint:
+    path: brent/zha-aqara-magic-cube-57-actions.yaml
+    input:
+      remote: e2b992794ac1cd8385064920a1229909
+      four_to_four:
+      - type: toggle
+        device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        entity_id: light.scissor_light_light
+        domain: light
+      rotate_right:
+      - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        domain: light
+        entity_id: light.scissor_light_light
+        type: brightness_increase
+      rotate_left:
+      - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        domain: light
+        entity_id: light.scissor_light_light
+        type: brightness_decrease
+      cube_shake:
+      - type: toggle
+        device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        entity_id: light.scissor_light_light
+        domain: light
+- id: '1673339061722'
+  alias: Motion Detected TV Light
+  description: Turn on tv light after motion detected in hall
+  condition:
+  - condition: template
+    value_template: '{{ state_attr(''sun.sun'', ''elevation'') < 0 }}'
+  - condition: template
+    value_template: '{{ is_state(''light.tv_light_light'', ''off'') }}'
+  - condition: template
+    value_template: '{{ is_state(''light.desk_light_light'', ''off'') }}'
+  - condition: template
+    value_template: '{{ is_state(''light.cough_light_light'', ''off'') }}'
+  - condition: not
+    conditions:
+    - condition: time
+      after: 02:00:00
+      before: 07:00:00
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.pir_entrance
+      switch_target:
+        entity_id:
+      no_motion_wait: 0
+      light_target:
+        entity_id: light.living_area
+- id: '1673344342838'
+  alias: Motion Detected Hall Light
+  description: Turn on hall light after detection of motion in hall
+  condition:
+  - condition: template
+    value_template: '{{ is_state(''switch.switch_entrance'',c ''off'') }}'
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.pir_entrance
+      light_target:
+        device_id:
+      switch_target:
+        entity_id:
+        - switch.switch_entrance
+      no_motion_wait: 10
+- id: '1673564705495'
+  alias: Turn On Living Room TV with WakeOnLan
+  description: ''
+  trigger:
+  - platform: device
+    device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
+    domain: webostv
+    type: webostv.turn_on
+  condition: []
+  action:
+  - service: wake_on_lan.send_magic_packet
+    data:
+      mac: 24:e8:53:cb:07:22
+  mode: single
+- id: '1674080566184'
+  alias: Unjoin Rears After TV On
+  description: ''
+  trigger:
+  - platform: device
+    device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
+    domain: webostv
+    type: webostv.turn_on
+  condition: []
+  action:
+  - service: media_player.unjoin
+    data: {}
+    target:
+      device_id: 5ed4d4aebbe5883e7d505690ade33328
+  - service: media_player.select_source
+    data:
+      source: Denon Home right rear - AUX In
+    target:
+      device_id:
+      - 5ed4d4aebbe5883e7d505690ade33328
+  - service: media_player.select_source
+    data:
+      source: Denon Home left rear - AUX In
+    target:
+      device_id: cbf17e38e92dea93152373478a75b2c3
+  mode: single
+- id: '1674505188829'
+  alias: Message on motion
+  description: Send android message
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.pir_entrance
+    to: 'on'
+  condition: []
+  action:
+  - service: notify.mobile_app_pixel_5
+    data:
+      message: Motion in the hall
+      title: HA motion Hall
+  mode: single
+- id: '1674828621361'
+  alias: Bedroom light on motion
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.ikea_of_sweden_tradfri_motion_sensor_motion
+      light_target:
+        device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+      no_motion_wait: 10
+      switch_target:
+        entity_id: switch.switch_coutch

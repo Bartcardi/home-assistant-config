@@ -1,0 +1,59 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+logger:
+  default: error
+  logs:
+    rflink: debug
+    homeassistant.components.rflink: debug
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# Let's encrypt
+http:
+  ssl_certificate: /ssl/fullchain.pem
+  ssl_key: /ssl/privkey.pem
+
+wake_on_lan: # enables `wake_on_lan` integration
+
+rflink:
+  port: /dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_55137313931351615261-if00
+  wait_for_ack: false
+  ignore_devices:
+    - newkaku_018c4800_*
+
+switch:
+  - platform: rflink
+    devices:
+      newkaku_01ff9b3a_3:
+        name: Switch Entrance
+      # newkaku_01b28de6_3:
+      #   name: Switch Entrance
+      newkaku_01ff9b3a_1:
+        name: Switch Coutch
+
+light:
+  - platform: rflink
+    automatic_add: false
+
+sensor:
+  - platform: rflink
+    automatic_add: false
+
+binary_sensor:
+  - platform: rflink
+    devices:
+      newkaku_01b28de6_a:
+        name: PIR Entrance
+        device_class: motion
+        off_delay: 60
