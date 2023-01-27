@@ -56,7 +56,7 @@
   description: Turn on hall light after detection of motion in hall
   condition:
   - condition: template
-    value_template: '{{ is_state(''switch.switch_entrance'',c ''off'') }}'
+    value_template: '{{ is_state(''switch.switch_entrance'', ''off'') }}'
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
