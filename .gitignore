@@ -6,7 +6,6 @@
 !*.yaml
 !.gitignore
 !*.md
-!blueprints
 
 # Ignore folders.
 .storage

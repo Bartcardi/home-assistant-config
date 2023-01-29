@@ -66,7 +66,7 @@
       switch_target:
         entity_id:
         - switch.switch_entrance
-      no_motion_wait: 10
+      no_motion_wait: 15
 - id: '1673564705495'
   alias: Turn On Living Room TV with WakeOnLan
   description: ''
@@ -108,19 +108,19 @@
       device_id: cbf17e38e92dea93152373478a75b2c3
   mode: single
 - id: '1674505188829'
-  alias: Message on motion
+  alias: Message on device detection
   description: Send android message
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.pir_entrance
-    to: 'on'
+    - device_tracker.dp_2_1_tohmy001949_c2c9
+    to: home
   condition: []
   action:
   - service: notify.mobile_app_pixel_5
     data:
-      message: Motion in the hall
-      title: HA motion Hall
+      message: Unknow device tracker detected
+      title: Device is home
   mode: single
 - id: '1674828621361'
   alias: Bedroom light on motion
