@@ -48,6 +48,8 @@ action:
     variables:
       wait_time: !input no_motion_wait
       sensor: !input motion_entity
+      trigger_time: "{{ now().timestamp() }}"
+      continue: true
   - alias: "Turn on the light"
     service: light.turn_on
     target: !input light_target
@@ -59,13 +61,14 @@ action:
     target: !input switch_target
   - alias: "Wait time greater than 0 seconds"
     condition: "{{ wait_time|int > 0 }}"
-  - alias: "Repeat delay while motion detected"
-    repeat:
-      while:
-        - condition: template  
-          value_template: "{{ is_state(sensor, 'on') }}"
-      sequence:
-        - delay: !input no_motion_wait
+  - alias: "Wait until there is no motion from device"
+    wait_for_trigger:
+      platform: state
+      entity_id: !input motion_entity
+      from: "on"
+      to: "off"
+      for:
+        seconds: "{{ wait_time|int }}"
   - alias: "Turn off the light"
     service: light.turn_off
     target: !input light_target
