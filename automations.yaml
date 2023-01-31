@@ -87,8 +87,9 @@
   trigger:
     - platform: device
       device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
-      domain: webostv
-      type: webostv.turn_on
+      domain: media_player
+      entity_id: media_player.lg_webos_tv_oled55g1rla
+      type: turned_on
   condition: []
   action:
     - service: media_player.unjoin
@@ -146,8 +147,7 @@
     - condition: template
       value_template:
         "{{ (trigger.event.data.new_state.context.parent_id is none) and
-        (trigger.event.data.new_state.state=='on') }}
-        "
+        (trigger.event.data.new_state.state=='on') }} "
   action:
     - service: notify.mobile_app_pixel_5
       data:

@@ -48,17 +48,24 @@ action:
     variables:
       wait_time: !input no_motion_wait
       sensor: !input motion_entity
-      trigger_time: "{{ now().timestamp() }}"
-      continue: true
-  - alias: "Turn on the light"
-    service: light.turn_on
-    target: !input light_target
-  - alias: "Wait one second to give RF Link some time"
-    delay:
-      seconds: 1
   - alias: "Flip switch on"
     service: switch.turn_on
     target: !input switch_target
+  - alias: "Wait half a second to give RF Link some time"
+    delay:
+      milliseconds: 500
+  - alias: "Flip switch on"
+    service: switch.turn_on
+    target: !input switch_target
+  - alias: "Wait half a second to give RF Link some time"
+    delay:
+      milliseconds: 500
+  - alias: "Flip switch on"
+    service: switch.turn_on
+    target: !input switch_target
+  - alias: "Turn on the light"
+    service: light.turn_on
+    target: !input light_target
   - alias: "Wait time greater than 0 seconds"
     condition: "{{ wait_time|int > 0 }}"
   - alias: "Wait until there is no motion from device"

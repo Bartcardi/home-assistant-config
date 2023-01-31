@@ -20,9 +20,9 @@ script: !include scripts.yaml
 scene: !include scenes.yaml
 
 # Let's encrypt
-http:
-  ssl_certificate: /ssl/fullchain.pem
-  ssl_key: /ssl/privkey.pem
+# http:
+#   ssl_certificate: /ssl/fullchain.pem
+#   ssl_key: /ssl/privkey.pem
 
 wake_on_lan: # enables `wake_on_lan` integration
 
