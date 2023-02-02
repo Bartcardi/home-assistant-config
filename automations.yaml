@@ -1,47 +1,47 @@
-- id: "1673297282375"
+- id: '1673297282375'
   alias: Aqara Magic Cube 57
-  description: ""
+  description: ''
   use_blueprint:
     path: brent/zha-aqara-magic-cube-57-actions.yaml
     input:
       remote: e2b992794ac1cd8385064920a1229909
       four_to_four:
-        - type: toggle
-          device_id: 719ae53ffd9599a74fd455d0bbf73fc7
-          entity_id: light.scissor_light_light
-          domain: light
+      - type: toggle
+        device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        entity_id: light.scissor_light_light
+        domain: light
       rotate_right:
-        - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
-          domain: light
-          entity_id: light.scissor_light_light
-          type: brightness_increase
+      - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        domain: light
+        entity_id: light.scissor_light_light
+        type: brightness_increase
       rotate_left:
-        - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
-          domain: light
-          entity_id: light.scissor_light_light
-          type: brightness_decrease
+      - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        domain: light
+        entity_id: light.scissor_light_light
+        type: brightness_decrease
       cube_shake:
-        - type: toggle
-          device_id: 719ae53ffd9599a74fd455d0bbf73fc7
-          entity_id: light.scissor_light_light
-          domain: light
-- id: "1673339061722"
+      - type: toggle
+        device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        entity_id: light.scissor_light_light
+        domain: light
+- id: '1673339061722'
   alias: Motion Detected TV Light
   description: Turn on tv light after motion detected in hall
   condition:
-    - condition: template
-      value_template: "{{ state_attr('sun.sun', 'elevation') < 0 }}"
-    - condition: template
-      value_template: "{{ is_state('light.tv_light_light', 'off') }}"
-    - condition: template
-      value_template: "{{ is_state('light.desk_light_light', 'off') }}"
-    - condition: template
-      value_template: "{{ is_state('light.cough_light_light', 'off') }}"
-    - condition: not
-      conditions:
-        - condition: time
-          after: 02:00:00
-          before: 07:00:00
+  - condition: template
+    value_template: '{{ state_attr(''sun.sun'', ''elevation'') < 0 }}'
+  - condition: template
+    value_template: '{{ is_state(''light.tv_light_light'', ''off'') }}'
+  - condition: template
+    value_template: '{{ is_state(''light.desk_light_light'', ''off'') }}'
+  - condition: template
+    value_template: '{{ is_state(''light.cough_light_light'', ''off'') }}'
+  - condition: not
+    conditions:
+    - condition: time
+      after: 02:00:00
+      before: 07:00:00
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
@@ -51,12 +51,12 @@
       no_motion_wait: 0
       light_target:
         entity_id: light.living_area
-- id: "1673344342838"
+- id: '1673344342838'
   alias: Motion Detected Hall Light
   description: Turn on hall light after detection of motion in hall
   condition:
-    - condition: template
-      value_template: "{{ is_state('input_boolean.hall_on_manually', 'off') }}"
+  - condition: template
+    value_template: '{{ is_state(''input_boolean.hall_on_manually'', ''off'') }}'
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
@@ -65,67 +65,67 @@
         device_id:
       switch_target:
         entity_id:
-          - switch.switch_entrance
+        - switch.switch_entrance
       no_motion_wait: 15
-- id: "1673564705495"
+- id: '1673564705495'
   alias: Turn On Living Room TV with WakeOnLan
-  description: ""
+  description: ''
   trigger:
-    - platform: device
-      device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
-      domain: webostv
-      type: webostv.turn_on
+  - platform: device
+    device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
+    domain: webostv
+    type: webostv.turn_on
   condition: []
   action:
-    - service: wake_on_lan.send_magic_packet
-      data:
-        mac: 24:e8:53:cb:07:22
+  - service: wake_on_lan.send_magic_packet
+    data:
+      mac: 24:e8:53:cb:07:22
   mode: single
-- id: "1674080566184"
+- id: '1674080566184'
   alias: Unjoin Rears After TV On
-  description: ""
+  description: ''
   trigger:
-    - platform: device
-      device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
-      domain: media_player
-      entity_id: media_player.lg_webos_tv_oled55g1rla
-      type: turned_on
+  - platform: device
+    device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
+    domain: media_player
+    entity_id: media_player.lg_webos_tv_oled55g1rla
+    type: turned_on
   condition: []
   action:
-    - service: media_player.unjoin
-      data: {}
-      target:
-        device_id: 5ed4d4aebbe5883e7d505690ade33328
-    - service: media_player.select_source
-      data:
-        source: Denon Home right rear - AUX In
-      target:
-        device_id:
-          - 5ed4d4aebbe5883e7d505690ade33328
-    - service: media_player.select_source
-      data:
-        source: Denon Home left rear - AUX In
-      target:
-        device_id: cbf17e38e92dea93152373478a75b2c3
+  - service: media_player.unjoin
+    data: {}
+    target:
+      device_id: 5ed4d4aebbe5883e7d505690ade33328
+  - service: media_player.select_source
+    data:
+      source: Denon Home right rear - AUX In
+    target:
+      device_id:
+      - 5ed4d4aebbe5883e7d505690ade33328
+  - service: media_player.select_source
+    data:
+      source: Denon Home left rear - AUX In
+    target:
+      device_id: cbf17e38e92dea93152373478a75b2c3
   mode: single
-- id: "1674505188829"
+- id: '1674505188829'
   alias: Message on device detection
   description: Send android message
   trigger:
-    - platform: state
-      entity_id:
-        - device_tracker.dp_2_1_tohmy001949_c2c9
-      to: home
+  - platform: state
+    entity_id:
+    - device_tracker.dp_2_1_tohmy001949_c2c9
+    to: home
   condition: []
   action:
-    - service: notify.mobile_app_pixel_5
-      data:
-        message: Unknow device tracker detected
-        title: Device is home
+  - service: notify.mobile_app_pixel_5
+    data:
+      message: Unknow device tracker detected
+      title: Device is home
   mode: single
-- id: "1674828621361"
+- id: '1674828621361'
   alias: Bedroom light on motion
-  description: ""
+  description: ''
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
@@ -135,43 +135,58 @@
       no_motion_wait: 10
       switch_target:
         entity_id: switch.switch_coutch
-- id: "1675024517327"
+- id: '1675024517327'
   alias: Manually switch hall on
   description: Check if hall switch was flipped on manually
   trigger:
-    - platform: event
-      event_type: state_changed
-      event_data:
-        entity_id: switch.switch_entrance
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: switch.switch_entrance
   condition:
-    - condition: template
-      value_template:
-        "{{ (trigger.event.data.new_state.context.parent_id is none) and
-        (trigger.event.data.new_state.state=='on') }} "
+  - condition: template
+    value_template: '{{ (trigger.event.data.new_state.context.parent_id is none) and
+      (trigger.event.data.new_state.state==''on'') }} '
   action:
-    - service: notify.mobile_app_pixel_5
-      data:
-        message: Hall turned on manually
-        title: Hall on
-    - service: input_boolean.turn_on
-      target:
-        entity_id: input_boolean.hall_on_manually
-      data: {}
+  - service: notify.mobile_app_pixel_5
+    data:
+      message: Hall turned on manually
+      title: Hall on
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.hall_on_manually
+    data: {}
   mode: single
-- id: "1675067022089"
+- id: '1675067022089'
   alias: Switch hall off
   description: Reset hall_on_manually toggle to off
   trigger:
-    - platform: event
-      event_type: state_changed
-      event_data:
-        entity_id: switch.switch_entrance
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: switch.switch_entrance
   condition:
-    - condition: template
-      value_template: "{{ trigger.event.data.new_state.state=='off' }}"
+  - condition: template
+    value_template: '{{ trigger.event.data.new_state.state==''off'' }}'
   action:
-    - service: input_boolean.turn_off
-      data: {}
-      target:
-        entity_id: input_boolean.hall_on_manually
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.hall_on_manually
+  mode: single
+- id: '1675202634957'
+  alias: Lower volume of Alexa after 4
+  description: ''
+  trigger:
+  - platform: time
+    at: 04:00:00
+  condition: []
+  action:
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.2
+    target:
+      device_id:
+      - cbf17e38e92dea93152373478a75b2c3
+      - 5ed4d4aebbe5883e7d505690ade33328
   mode: single
