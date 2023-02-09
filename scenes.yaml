@@ -1,0 +1,35 @@
+- id: '1675891607110'
+  name: Going to bed after tv
+  entities:
+    light.living:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - brightness
+      - color_temp
+      - xy
+      entity_id:
+      - light.dining
+      - light.couch
+      icon: mdi:lightbulb-group
+      friendly_name: Living
+      supported_features: 40
+      state: 'off'
+    light.scissor_light_light:
+      supported_color_modes:
+      - brightness
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Scissor light  Light
+      supported_features: 40
+      color_mode: brightness
+      brightness: 26
+      state: 'on'
+  icon: mdi:chat-sleep
+  metadata:
+    light.living:
+      entity_only: true
+    light.scissor_light_light:
+      entity_only: true
