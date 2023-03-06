@@ -34,8 +34,8 @@ blueprint:
 
 # If motion is detected within the delay,
 # we restart the script.
-mode: restart
-max_exceeded: silent
+mode: single
+# max_exceeded: silent
 
 trigger:
   platform: state
@@ -48,18 +48,21 @@ action:
     variables:
       wait_time: !input no_motion_wait
       sensor: !input motion_entity
+  - alias: "Wait quarter of a second to give RF Link some time"
+    delay:
+      milliseconds: 250
   - alias: "Flip switch on"
     service: switch.turn_on
     target: !input switch_target
-  - alias: "Wait half a second to give RF Link some time"
+  - alias: "Wait quarter of a second to give RF Link some time"
     delay:
-      milliseconds: 500
+      milliseconds: 250
   - alias: "Flip switch on"
     service: switch.turn_on
     target: !input switch_target
-  - alias: "Wait half a second to give RF Link some time"
+  - alias: "Wait quarter of a second to give RF Link some time"
     delay:
-      milliseconds: 500
+      milliseconds: 250
   - alias: "Flip switch on"
     service: switch.turn_on
     target: !input switch_target

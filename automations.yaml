@@ -50,7 +50,8 @@
         entity_id:
       no_motion_wait: 0
       light_target:
-        entity_id: light.living_area
+        entity_id:
+        - light.living
 - id: '1673344342838'
   alias: Motion Detected Hall Light
   description: Turn on hall light after detection of motion in hall
@@ -163,6 +164,10 @@
     target:
       entity_id: input_boolean.hall_on_manually
     data: {}
+  - service: notify.lg_webos_tv_oled55g1rla
+    data:
+      message: 'This is a test '
+      title: Test
   mode: single
 - id: '1675067022089'
   alias: Switch hall off
@@ -260,13 +265,41 @@
     - input_button.bedtime
   condition: []
   action:
-  - service: light.turn_off
-    data:
-      transition: 180
-    target:
-      entity_id: light.living
   - service: light.turn_on
     data: {}
     target:
       entity_id: light.scissor_light_light
+  - delay:
+      hours: 0
+      minutes: 3
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id:
+      - light.couch
+      - light.ecodim_bv_ecodim_zigbee_3_0_light
+  - service: light.turn_off
+    data:
+      transition: 45
+    target:
+      entity_id: light.ecodim_bv_ecodim_zigbee_3_0_light_2
+  mode: single
+- id: '1676276131427'
+  alias: Play BNR
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_button.radio
+  condition: []
+  action:
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.denon_home_right_rear
+    data:
+      media_content_id: '4'
+      media_content_type: favorite
+    metadata: {}
   mode: single
