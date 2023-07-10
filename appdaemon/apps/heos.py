@@ -6,12 +6,14 @@ from pyheos import Heos
 
 class ControlHeos(hass.Hass):
     def initialize(self):
+        self.log("Initializing heos app")
         self.listen_state(
             self.ungroup, "media_player.lg_webos_tv_oled55g1rla", new="on"
         )
         self.listen_state(self.ungroup, "input_button.heos_ungroup")
         self.listen_state(self.group, "media_player.lg_webos_tv_oled55g1rla", new="off")
         self.listen_state(self.group, "input_button.heos_group")
+        self.log("Done initializing")
 
     async def ungroup(self, entity, attribute, old, new, kwargs):
         heos_control = self.get_entity("input_boolean.heos_is_being_setup")
@@ -59,7 +61,7 @@ class ControlHeos(hass.Hass):
             self.call_service(
                 "media_player/volume_set",
                 entity_id="media_player.denon_home_right_rear",
-                volume_level=0.5,
+                volume_level=0.66,
             )
 
             response = sh.shoe("-H", "192.168.179.193", "-c", "Play")
@@ -74,7 +76,7 @@ class ControlHeos(hass.Hass):
 
             heos_left = players[751373395]
             await heos_left.play_input("inputs/aux_in_1")
-            await heos_left.set_volume(50)
+            await heos_left.set_volume(66)
             await heos.disconnect()
 
             self.call_service(
@@ -93,7 +95,6 @@ class ControlHeos(hass.Hass):
         heos_group = self.get_entity("input_boolean.heos_grouped")
         heos_grouped = heos_group.is_state("on")
         if not (heos_controlled or heos_grouped):
-
             self.call_service(
                 "input_boolean/turn_on", entity_id="input_boolean.heos_is_being_setup"
             )

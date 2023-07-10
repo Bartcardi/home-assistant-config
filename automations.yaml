@@ -63,11 +63,10 @@
     input:
       motion_entity: binary_sensor.pir_entrance
       light_target:
-        device_id:
+        device_id: 1afb1b014d7c51837d70883d80557a68
+      no_motion_wait: 15
       switch_target:
         entity_id:
-          - switch.switch_entrance
-      no_motion_wait: 15
 - id: "1673564705495"
   alias: Turn On Living Room TV with WakeOnLan
   description: ""
@@ -195,9 +194,9 @@
         | lower }} {% else %} light.turn_on {% endif %}'
       target:
         entity_id:
-          "{% set lights_json = {\n  \"0\": \"light.living\",\n  \"1\": \"light.ecodim_bv_ecodim_zigbee_3_0_light_2\",\n
-          \ \"2\": \"light.ecodim_bv_ecodim_zigbee_3_0_light\",\n  \"3\": \"light.cough_light_light\",\n
-          \ \"4\": \"light.tv_desk\"\n  }\n%} {% set light_idx = trigger.topic.split('/')[4]|string
+          "{% set lights_json = {\n  \"4\": \"light.living\",\n  \"1\": \"light.kitchen_table\",\n
+          \ \"3\": \"light.couch\",\n  \"0\": \"light.dining\",\n
+          \ \"2\": \"light.hue_spots\"\n  }\n%} {% set light_idx = trigger.topic.split('/')[4]|string
           %} {{ lights_json[light_idx] }}\n"
       data:
         '{% if "brightness" in trigger.payload_json %} {"brightness": {{ [trigger.payload_json[''brightness'']|int,
@@ -251,4 +250,75 @@
         media_content_id: "4"
         media_content_type: favorite
       metadata: {}
+  mode: single
+- id: "1681892643641"
+  alias: Select PS4 input
+  description: Change AVR HDMI settings when PS4 is selected
+  trigger:
+    - platform: state
+      entity_id:
+        - media_player.denon_avr_x1700h_2
+      attribute: source
+      to: PlayStation 4
+  condition:
+    - condition: state
+      entity_id: media_player.denon_avr_x1700h_2
+      attribute: source
+      state: PlayStation 4
+  action:
+    - service: rest_command.denon_hdmi_control_off
+      data: {}
+  mode: single
+- id: "1681908931100"
+  alias: Select TV Audio Source
+  description: Turn on HDMI control when input source is TV Audio
+  trigger:
+    - platform: state
+      entity_id:
+        - media_player.denon_avr_x1700h_2
+      attribute: source
+      to:
+        - CBL/SAT
+        - TV Audio
+  condition: []
+  action:
+    - service: rest_command.denon_hdmi_control_on
+      data: {}
+  mode: single
+- id: "1681930635269"
+  alias: Switch to HDMI2 for PS4
+  description: ""
+  trigger:
+    - platform: device
+      device_id: 628cd7858c774ec3bf4fe2c20fa9181b
+      domain: media_player
+      entity_id: media_player.playstation_4
+      type: idle
+  condition: []
+  action:
+    - service: media_player.select_source
+      data:
+        source: Denon Home Theatre
+      target:
+        device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
+  mode: single
+- id: "1681931471771"
+  alias: Switch to Home after PS4 Off
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - media_player.playstation_4
+      to: unknown
+  condition: []
+  action:
+    - service: webostv.button
+      data:
+        entity_id: media_player.lg_webos_tv_oled55g1rla
+        button: HOME
+    - service: media_player.select_source
+      data:
+        source: TV Audio
+      target:
+        entity_id: media_player.denon_avr_x1700h_2
   mode: single

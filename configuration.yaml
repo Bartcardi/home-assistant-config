@@ -4,12 +4,14 @@ default_config:
 # Load frontend themes from the themes folder
 frontend:
   themes: !include_dir_merge_named themes
+  extra_module_url:
+    - /hacsfiles/lovelace-card-mod/card-mod.js
 
 logger:
   default: error
-  logs:
-    rflink: debug
-    homeassistant.components.rflink: debug
+  # logs:
+  #   rflink: debug
+  #   homeassistant.components.rflink: debug
 
 # Text to speech
 tts:
@@ -57,3 +59,11 @@ binary_sensor:
         name: PIR Entrance
         device_class: motion
         off_delay: 60
+
+rest_command:
+  denon_hdmi_control_off:
+    url: "https://192.168.179.109:10443/ajax/video/set_config?type=3&data=%3CHDMIControl%3E2%3C%2FHDMIControl%3E"
+    verify_ssl: false
+  denon_hdmi_control_on:
+    url: "https://192.168.179.109:10443/ajax/video/set_config?type=3&data=%3CHDMIControl%3E1%3C%2FHDMIControl%3E"
+    verify_ssl: false
