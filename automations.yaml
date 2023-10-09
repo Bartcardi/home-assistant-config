@@ -25,33 +25,6 @@
           device_id: 719ae53ffd9599a74fd455d0bbf73fc7
           entity_id: light.scissor_light_light
           domain: light
-- id: "1673339061722"
-  alias: Motion Detected TV Light
-  description: Turn on tv light after motion detected in hall
-  condition:
-    - condition: template
-      value_template: "{{ state_attr('sun.sun', 'elevation') < 0 }}"
-    - condition: template
-      value_template: "{{ is_state('light.tv_light_light', 'off') }}"
-    - condition: template
-      value_template: "{{ is_state('light.desk_light_light', 'off') }}"
-    - condition: template
-      value_template: "{{ is_state('light.cough_light_light', 'off') }}"
-    - condition: not
-      conditions:
-        - condition: time
-          after: 02:00:00
-          before: 07:00:00
-  use_blueprint:
-    path: homeassistant/motion_light.yaml
-    input:
-      motion_entity: binary_sensor.pir_entrance
-      switch_target:
-        entity_id:
-      no_motion_wait: 0
-      light_target:
-        entity_id:
-          - light.living
 - id: "1673344342838"
   alias: Motion Detected Hall Light
   description: Turn on hall light after detection of motion in hall
@@ -195,9 +168,9 @@
       target:
         entity_id:
           "{% set lights_json = {\n  \"4\": \"light.living\",\n  \"1\": \"light.kitchen_table\",\n
-          \ \"3\": \"light.couch\",\n  \"0\": \"light.dining\",\n
-          \ \"2\": \"light.hue_spots\"\n  }\n%} {% set light_idx = trigger.topic.split('/')[4]|string
-          %} {{ lights_json[light_idx] }}\n"
+          \ \"3\": \"light.couch\",\n  \"0\": \"light.dining\",\n  \"2\": \"light.hue_spots\"\n
+          \ }\n%} {% set light_idx = trigger.topic.split('/')[4]|string %} {{ lights_json[light_idx]
+          }}\n"
       data:
         '{% if "brightness" in trigger.payload_json %} {"brightness": {{ [trigger.payload_json[''brightness'']|int,
         10] | max }} } {% else %} {} {% endif %}'
@@ -321,4 +294,22 @@
         source: TV Audio
       target:
         entity_id: media_player.denon_avr_x1700h_2
+  mode: single
+- id: "1696851993683"
+  alias: Warn when CO2 is high
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.weather_station_carbon_dioxide
+      above: 950
+  condition: []
+  action:
+    - service: notify.mobile_app_pixel_5
+      data:
+        message: "CO2 too high: passed 950"
+        title: CO2 high
+    - service: notify.mobile_app_iphone_2
+      data:
+        message: "CO2 too high: passed 950"
+        title: CO2 high
   mode: single
