@@ -1,36 +1,36 @@
-- id: "1673297282375"
+- id: '1673297282375'
   alias: Aqara Magic Cube 57
-  description: ""
+  description: ''
   use_blueprint:
     path: brent/zha-aqara-magic-cube-57-actions.yaml
     input:
       remote: e2b992794ac1cd8385064920a1229909
       four_to_four:
-        - type: toggle
-          device_id: 719ae53ffd9599a74fd455d0bbf73fc7
-          entity_id: light.scissor_light_light
-          domain: light
+      - type: toggle
+        device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        entity_id: light.scissor_light_light
+        domain: light
       rotate_right:
-        - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
-          domain: light
-          entity_id: light.scissor_light_light
-          type: brightness_increase
+      - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        domain: light
+        entity_id: light.scissor_light_light
+        type: brightness_increase
       rotate_left:
-        - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
-          domain: light
-          entity_id: light.scissor_light_light
-          type: brightness_decrease
+      - device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        domain: light
+        entity_id: light.scissor_light_light
+        type: brightness_decrease
       cube_shake:
-        - type: toggle
-          device_id: 719ae53ffd9599a74fd455d0bbf73fc7
-          entity_id: light.scissor_light_light
-          domain: light
-- id: "1673344342838"
+      - type: toggle
+        device_id: 719ae53ffd9599a74fd455d0bbf73fc7
+        entity_id: light.scissor_light_light
+        domain: light
+- id: '1673344342838'
   alias: Motion Detected Hall Light
   description: Turn on hall light after detection of motion in hall
   condition:
-    - condition: template
-      value_template: "{{ is_state('input_boolean.hall_on_manually', 'off') }}"
+  - condition: template
+    value_template: '{{ is_state(''input_boolean.hall_on_manually'', ''off'') }}'
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
@@ -40,38 +40,38 @@
       no_motion_wait: 15
       switch_target:
         entity_id:
-- id: "1673564705495"
+- id: '1673564705495'
   alias: Turn On Living Room TV with WakeOnLan
-  description: ""
+  description: ''
   trigger:
-    - platform: device
-      device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
-      domain: webostv
-      type: webostv.turn_on
+  - platform: device
+    device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
+    domain: webostv
+    type: webostv.turn_on
   condition: []
   action:
-    - service: wake_on_lan.send_magic_packet
-      data:
-        mac: 24:e8:53:cb:07:22
+  - service: wake_on_lan.send_magic_packet
+    data:
+      mac: 24:e8:53:cb:07:22
   mode: single
-- id: "1674505188829"
+- id: '1674505188829'
   alias: Message on device detection
   description: Send android message
   trigger:
-    - platform: state
-      entity_id:
-        - device_tracker.dp_2_1_tohmy001949_c2c9
-      to: home
+  - platform: state
+    entity_id:
+    - device_tracker.dp_2_1_tohmy001949_c2c9
+    to: home
   condition: []
   action:
-    - service: notify.mobile_app_pixel_5
-      data:
-        message: Unknow device tracker detected
-        title: Device is home
+  - service: notify.mobile_app_pixel_5
+    data:
+      message: Unknow device tracker detected
+      title: Device is home
   mode: single
-- id: "1674828621361"
+- id: '1674828621361'
   alias: Bedroom light on motion
-  description: ""
+  description: ''
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
@@ -81,235 +81,248 @@
       no_motion_wait: 10
       switch_target:
         entity_id:
-- id: "1675024517327"
+- id: '1675024517327'
   alias: Manually switch hall on
   description: Check if hall switch was flipped on manually
   trigger:
-    - platform: event
-      event_type: state_changed
-      event_data:
-        entity_id: switch.switch_entrance
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: switch.switch_entrance
   condition:
-    - condition: template
-      value_template:
-        "{{ (trigger.event.data.new_state.context.parent_id is none) and
-        (trigger.event.data.new_state.state=='on') }} "
+  - condition: template
+    value_template: '{{ (trigger.event.data.new_state.context.parent_id is none) and
+      (trigger.event.data.new_state.state==''on'') }} '
   action:
-    - service: notify.mobile_app_pixel_5
-      data:
-        message: Hall turned on manually
-        title: Hall on
-    - service: input_boolean.turn_on
-      target:
-        entity_id: input_boolean.hall_on_manually
-      data: {}
-    - service: notify.lg_webos_tv_oled55g1rla
-      data:
-        message: "This is a test "
-        title: Test
+  - service: notify.mobile_app_pixel_5
+    data:
+      message: Hall turned on manually
+      title: Hall on
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.hall_on_manually
+    data: {}
+  - service: notify.lg_webos_tv_oled55g1rla
+    data:
+      message: 'This is a test '
+      title: Test
   mode: single
-- id: "1675067022089"
+- id: '1675067022089'
   alias: Switch hall off
   description: Reset hall_on_manually toggle to off
   trigger:
-    - platform: event
-      event_type: state_changed
-      event_data:
-        entity_id: switch.switch_entrance
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: switch.switch_entrance
   condition:
-    - condition: template
-      value_template: "{{ trigger.event.data.new_state.state=='off' }}"
+  - condition: template
+    value_template: '{{ trigger.event.data.new_state.state==''off'' }}'
   action:
-    - service: input_boolean.turn_off
-      data: {}
-      target:
-        entity_id: input_boolean.hall_on_manually
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.hall_on_manually
   mode: single
-- id: "1675202634957"
+- id: '1675202634957'
   alias: Lower volume of Alexa after 4am
-  description: ""
+  description: ''
   trigger:
-    - platform: time
-      at: 04:00:00
+  - platform: time
+    at: 04:00:00
   condition: []
   action:
-    - service: media_player.volume_set
-      data:
-        volume_level: 0.2
-      target:
-        device_id:
-          - cbf17e38e92dea93152373478a75b2c3
-          - 5ed4d4aebbe5883e7d505690ade33328
-        entity_id: media_player.denon_home_left_rear
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.2
+    target:
+      device_id:
+      - cbf17e38e92dea93152373478a75b2c3
+      - 5ed4d4aebbe5883e7d505690ade33328
+      entity_id: media_player.denon_home_left_rear
   mode: single
-- id: "1675667435715"
+- id: '1675667435715'
   alias: MiBoxer Forwarder
   description: Forward MiBoxer Commands
   trigger:
-    - platform: mqtt
-      topic: milight/updates/0x156/fut091/+
+  - platform: mqtt
+    topic: milight/updates/0x156/fut091/+
   action:
-    - service: mqtt.publish
-      data_template:
-        topic: milight/commands/0x1156/fut091/{{ trigger.topic.split('/')[4] }}
-        payload_template: "{{ trigger.payload }}"
+  - service: mqtt.publish
+    data_template:
+      topic: milight/commands/0x1156/fut091/{{ trigger.topic.split('/')[4] }}
+      payload_template: '{{ trigger.payload }}'
   initial_state: true
-- id: "1675668902993"
+- id: '1675668902993'
   alias: MiBoxer Remote
   description: Control living room lights with MiBoxer remote
   trigger:
-    - platform: mqtt
-      topic: milight/commands/0x1156/fut091/+
+  - platform: mqtt
+    topic: milight/commands/0x1156/fut091/+
   condition: []
   action:
-    - service:
-        '{% if "state" in trigger.payload_json %} light.turn_{{ trigger.payload_json[''state'']
-        | lower }} {% else %} light.turn_on {% endif %}'
-      target:
-        entity_id:
-          "{% set lights_json = {\n  \"4\": \"light.living\",\n  \"1\": \"light.kitchen_table\",\n
-          \ \"3\": \"light.couch\",\n  \"0\": \"light.dining\",\n  \"2\": \"light.hue_spots\"\n
-          \ }\n%} {% set light_idx = trigger.topic.split('/')[4]|string %} {{ lights_json[light_idx]
-          }}\n"
-      data:
-        '{% if "brightness" in trigger.payload_json %} {"brightness": {{ [trigger.payload_json[''brightness'']|int,
-        10] | max }} } {% else %} {} {% endif %}'
+  - service: '{% if "state" in trigger.payload_json %} light.turn_{{ trigger.payload_json[''state'']
+      | lower }} {% else %} light.turn_on {% endif %}'
+    target:
+      entity_id: "{% set lights_json = {\n  \"4\": \"light.living\",\n  \"1\": \"light.kitchen_table\",\n
+        \ \"3\": \"light.couch\",\n  \"0\": \"light.dining\",\n  \"2\": \"light.hue_spots\"\n
+        \ }\n%} {% set light_idx = trigger.topic.split('/')[4]|string %} {{ lights_json[light_idx]
+        }}\n"
+    data: '{% if "brightness" in trigger.payload_json %} {"brightness": {{ [trigger.payload_json[''brightness'']|int,
+      10] | max }} } {% else %} {} {% endif %}'
   mode: single
-- id: "1675920317018"
+- id: '1675920317018'
   alias: Going to bed
-  description:
-    Turn off living room lights after 3 minutes and turn on light in the
+  description: Turn off living room lights after 3 minutes and turn on light in the
     bedroom
   trigger:
-    - platform: state
-      entity_id:
-        - input_button.bedtime
+  - platform: state
+    entity_id:
+    - input_button.bedtime
   condition: []
   action:
-    - service: light.turn_on
-      data: {}
-      target:
-        entity_id: light.scissor_light_light
-    - delay:
-        hours: 0
-        minutes: 3
-        seconds: 0
-        milliseconds: 0
-    - service: light.turn_off
-      data: {}
-      target:
-        entity_id:
-          - light.couch
-          - light.ecodim_bv_ecodim_zigbee_3_0_light
-    - service: light.turn_off
-      data:
-        transition: 45
-      target:
-        entity_id: light.ecodim_bv_ecodim_zigbee_3_0_light_2
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.scissor_light_light
+  - delay:
+      hours: 0
+      minutes: 3
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id:
+      - light.couch
+      - light.ecodim_bv_ecodim_zigbee_3_0_light
+  - service: light.turn_off
+    data:
+      transition: 45
+    target:
+      entity_id: light.ecodim_bv_ecodim_zigbee_3_0_light_2
   mode: single
-- id: "1676276131427"
+- id: '1676276131427'
   alias: Play BNR
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id:
-        - input_button.radio
+  - platform: state
+    entity_id:
+    - input_button.radio
   condition: []
   action:
-    - service: media_player.play_media
-      target:
-        entity_id: media_player.denon_home_right_rear
-      data:
-        media_content_id: "4"
-        media_content_type: favorite
-      metadata: {}
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.denon_home_right_rear
+    data:
+      media_content_id: '4'
+      media_content_type: favorite
+    metadata: {}
   mode: single
-- id: "1681892643641"
+- id: '1681892643641'
   alias: Select PS4 input
   description: Change AVR HDMI settings when PS4 is selected
   trigger:
-    - platform: state
-      entity_id:
-        - media_player.denon_avr_x1700h_2
-      attribute: source
-      to: PlayStation 4
+  - platform: state
+    entity_id:
+    - media_player.denon_avr_x1700h_2
+    attribute: source
+    to: PlayStation 4
   condition:
-    - condition: state
-      entity_id: media_player.denon_avr_x1700h_2
-      attribute: source
-      state: PlayStation 4
+  - condition: state
+    entity_id: media_player.denon_avr_x1700h_2
+    attribute: source
+    state: PlayStation 4
   action:
-    - service: rest_command.denon_hdmi_control_off
-      data: {}
+  - service: rest_command.denon_hdmi_control_off
+    data: {}
   mode: single
-- id: "1681908931100"
+- id: '1681908931100'
   alias: Select TV Audio Source
   description: Turn on HDMI control when input source is TV Audio
   trigger:
-    - platform: state
-      entity_id:
-        - media_player.denon_avr_x1700h_2
-      attribute: source
-      to:
-        - CBL/SAT
-        - TV Audio
+  - platform: state
+    entity_id:
+    - media_player.denon_avr_x1700h_2
+    attribute: source
+    to:
+    - CBL/SAT
+    - TV Audio
   condition: []
   action:
-    - service: rest_command.denon_hdmi_control_on
-      data: {}
+  - service: rest_command.denon_hdmi_control_on
+    data: {}
   mode: single
-- id: "1681930635269"
+- id: '1681930635269'
   alias: Switch to HDMI2 for PS4
-  description: ""
+  description: ''
   trigger:
-    - platform: device
-      device_id: 628cd7858c774ec3bf4fe2c20fa9181b
-      domain: media_player
-      entity_id: media_player.playstation_4
-      type: idle
+  - platform: device
+    device_id: 628cd7858c774ec3bf4fe2c20fa9181b
+    domain: media_player
+    entity_id: media_player.playstation_4
+    type: idle
   condition: []
   action:
-    - service: media_player.select_source
-      data:
-        source: Denon Home Theatre
-      target:
-        device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
+  - service: media_player.select_source
+    data:
+      source: Denon Home Theatre
+    target:
+      device_id: e6595a4eb7ab8b1b0d72c1f7d0527754
   mode: single
-- id: "1681931471771"
+- id: '1681931471771'
   alias: Switch to Home after PS4 Off
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id:
-        - media_player.playstation_4
-      to: unknown
+  - platform: state
+    entity_id:
+    - media_player.playstation_4
+    to: unknown
   condition: []
   action:
-    - service: webostv.button
-      data:
-        entity_id: media_player.lg_webos_tv_oled55g1rla
-        button: HOME
-    - service: media_player.select_source
-      data:
-        source: TV Audio
-      target:
-        entity_id: media_player.denon_avr_x1700h_2
+  - service: webostv.button
+    data:
+      entity_id: media_player.lg_webos_tv_oled55g1rla
+      button: HOME
+  - service: media_player.select_source
+    data:
+      source: TV Audio
+    target:
+      entity_id: media_player.denon_avr_x1700h_2
   mode: single
-- id: "1696851993683"
+- id: '1696851993683'
   alias: Warn when CO2 is high
-  description: ""
+  description: ''
   trigger:
-    - platform: numeric_state
-      entity_id: sensor.weather_station_carbon_dioxide
-      above: 950
+  - platform: numeric_state
+    entity_id: sensor.climate_children_co2
+    above: 950
   condition: []
   action:
-    - service: notify.mobile_app_pixel_5
-      data:
-        message: "CO2 too high: passed 950"
-        title: CO2 high
-    - service: notify.mobile_app_iphone_2
-      data:
-        message: "CO2 too high: passed 950"
-        title: CO2 high
+  - service: notify.mobile_app_pixel_5
+    data:
+      message: 'CO2 too high: passed 950'
+      title: CO2 high
+  - service: notify.mobile_app_galaxy23
+    data:
+      message: 'CO2 too high: passed 950'
+      title: CO2 high
+  mode: single
+- id: '1697085225639'
+  alias: Select Radio Station
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_select.radio_stations
+  condition: []
+  action:
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.denon_home_right_rear
+    data:
+      media_content_id: "{% if is_state('input_select.radio_stations', 'BNR Nieuwsradio')
+        %} \n  4\n{% else %} \n  3\n{% endif %}\n"
+      media_content_type: favorite
+    metadata: {}
   mode: single
