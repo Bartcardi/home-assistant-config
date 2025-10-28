@@ -43,6 +43,10 @@ switch:
       #   name: Switch Entrance
       newkaku_01ff9b3a_1:
         name: Switch Coutch
+      unitec_5f89_01:
+        name: Switch Outside1
+      unitec_5f89_02:
+        name: Switch Outside2
 
 light:
   - platform: rflink

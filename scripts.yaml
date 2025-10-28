@@ -1,0 +1,18 @@
+stereo:
+  sequence:
+  - action: input_button.press
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_button.heos_group
+  alias: Stereo
+  description: ''
+surround:
+  sequence:
+  - action: input_button.press
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_button.heos_ungroup
+  alias: Surround
+  description: ''
