@@ -28,9 +28,6 @@
 - id: '1673344342838'
   alias: Motion Detected Hall Light
   description: Turn on hall light after detection of motion in hall
-  conditions:
-  - condition: template
-    value_template: '{{ is_state(''input_boolean.hall_on_manually'', ''off'') }}'
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
@@ -84,20 +81,20 @@
 - id: '1675024517327'
   alias: Manually switch hall on
   description: Check if hall switch was flipped on manually
-  trigger:
+  triggers:
   - trigger: event
     event_type: state_changed
     event_data:
       entity_id: switch.switch_entrance
-  condition:
+  conditions:
   - condition: template
     value_template: '{{ (trigger.event.data.new_state.context.parent_id is none) and
       (trigger.event.data.new_state.state==''on'') }} '
-  action:
-  - action: notify.mobile_app_pixel_5
+  actions:
+  - action: notify.mobile_app_galaxy23
     data:
-      message: Hall turned on manually
-      title: Hall on
+      message: Hal aan.
+      title: Hal
   - action: input_boolean.turn_on
     target:
       entity_id: input_boolean.hall_on_manually
@@ -300,18 +297,11 @@
     trigger: numeric_state
   conditions: []
   actions:
-  - data:
-      message: 'CO2 too high: passed 950'
-      title: CO2 high
-      data:
-        url: /lovelace/graphs
-    action: notify.mobile_app_iphone_8
-  - data:
-      message: 'CO2 too high: passed 950'
-      title: CO2 high
-      data:
-        clickAction: /lovelace/graphs
-    action: notify.mobile_app_galaxy23
+  - action: notify.mobile_app_s23bart
+    metadata: {}
+    data:
+      message: CO2 above 950
+      title: High CO2
   mode: single
 - id: '1697085225639'
   alias: Select Radio Station
@@ -392,3 +382,421 @@
       entity_id: light.tv_desk
     data: {}
   mode: restart
+- id: '1773157148805'
+  alias: 'PKM: Midnight Reset'
+  description: Reset all daily PKM booleans at midnight. Reset weekly review on Mondays.
+  triggers:
+  - platform: time
+    at: 00:00:00
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id:
+      - input_boolean.morning_bridge_done
+      - input_boolean.morning_bridge_reminder_sent
+      - input_boolean.evening_reflection_done
+      - input_boolean.pkm_day_active
+  - if:
+    - condition: time
+      weekday:
+      - mon
+    then:
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.weekly_review_done
+  mode: single
+- id: '1773157150488'
+  alias: 'PKM: Handle Bridge Action'
+  description: Handle notification action buttons for Morning Bridge (done/skip).
+    Increments streak on done, resets on skip.
+  triggers:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: BRIDGE_DONE
+    id: done
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: BRIDGE_SKIP
+    id: skip
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: done
+      sequence:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.morning_bridge_done
+      - action: counter.increment
+        target:
+          entity_id: counter.morning_bridge_streak
+      - action: notify.mobile_app_s23bart
+        data:
+          title: Nice
+          message: 'Bridge done. Streak: {{ states(''counter.morning_bridge_streak'')
+            }} dagen.'
+          data:
+            tag: pkm-morning-bridge
+            channel: PKM Coach
+      - action: notify.mobile_app_s23bart
+        data:
+          message: clear_notification
+          data:
+            tag: pkm-morning-bridge-followup
+    - conditions:
+      - condition: trigger
+        id: skip
+      sequence:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.morning_bridge_done
+      - action: counter.reset
+        target:
+          entity_id: counter.morning_bridge_streak
+      - action: notify.mobile_app_s23bart
+        data:
+          message: clear_notification
+          data:
+            tag: pkm-morning-bridge
+      - action: notify.mobile_app_s23bart
+        data:
+          message: clear_notification
+          data:
+            tag: pkm-morning-bridge-followup
+  mode: single
+- id: '1773157151952'
+  alias: 'PKM: Handle Reflection Action'
+  description: Handle notification action buttons for Evening Reflection (done/skip).
+  triggers:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: REFLECTION_DONE
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: REFLECTION_SKIP
+  actions:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.evening_reflection_done
+  mode: single
+- id: '1773157153514'
+  alias: 'PKM: Handle Weekly Review Action'
+  description: Handle notification action button for Weekly Review completion.
+  triggers:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: WEEKLY_DONE
+  actions:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.weekly_review_done
+  - action: notify.mobile_app_s23bart
+    data:
+      title: Weekreview klaar
+      message: Goed gedaan. Geniet van je zondagavond.
+      data:
+        tag: pkm-weekly
+        channel: PKM Coach
+  mode: single
+- id: '1773157222837'
+  alias: 'PKM: Morning Bridge Reminder'
+  description: Activity-triggered morning reminder. Fires when phone starts discharging
+    (proxy for waking up). Waits 5 min, then sends push with action buttons and a
+    writing prompt to ReMarkable.
+  triggers:
+  - platform: state
+    entity_id: sensor.s23bart_battery_state
+    from: charging
+    to: discharging
+    id: phone_unplugged
+  - platform: state
+    entity_id: sensor.s23bart_battery_state
+    from: not_charging
+    to: discharging
+    id: phone_unplugged
+  conditions:
+  - condition: time
+    after: 06:00:00
+    before: '10:30:00'
+  - condition: state
+    entity_id: input_boolean.pkm_day_active
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.morning_bridge_done
+    state: 'off'
+  actions:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.pkm_day_active
+  - delay:
+      minutes: 5
+  - variables:
+      prompt: '{{ ["Open Anytype, maak je Daily Log aan, en begin met The Headspace.
+        Wat is het eerste waar je dankbaar voor bent?", "Nieuwe dag, schone lei. Open
+        de Motherlode en start je Morning Bridge. Hoe kom je vandaag aan?", "De Bridge
+        wacht. ReMarkable inbox + Anytype inbox — maak ze leeg. En schrijf minstens
+        een Nugget van gisteren.", "Goedemorgen. Pak je Daily Log erbij. Een ding
+        om dankbaar voor te zijn, en dan de Bridge.", "Start je dag bewust. Open Anytype,
+        vul The Headspace in, en kijk wat er op de ReMarkable staat."] | random }}'
+  - action: notify.mobile_app_s23bart
+    data:
+      title: Goedemorgen — Time for the Bridge
+      message: '{{ prompt }}'
+      data:
+        tag: pkm-morning-bridge
+        channel: PKM Coach
+        importance: default
+        sticky: true
+        actions:
+        - action: BRIDGE_DONE
+          title: Bridge gedaan
+        - action: BRIDGE_SKIP
+          title: Skip vandaag
+  - event: remarkable_prompt
+    event_data:
+      prompt: '{{ prompt }}'
+      title: Morning Bridge
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.morning_bridge_reminder_sent
+  mode: single
+- id: '1773157224535'
+  alias: 'PKM: Morning Bridge Follow-Up'
+  description: Gentle nudge 2.5 hours after morning reminder if Bridge not yet done.
+    Never fires before 10:00 AM.
+  triggers:
+  - platform: state
+    entity_id: input_boolean.morning_bridge_reminder_sent
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: input_boolean.morning_bridge_done
+    state: 'off'
+  actions:
+  - delay:
+      hours: 2
+      minutes: 30
+  - if:
+    - condition: time
+      before: '10:00:00'
+    then:
+    - wait_for_trigger:
+      - platform: time
+        at: '10:00:00'
+      timeout: 04:00:00
+  - condition: state
+    entity_id: input_boolean.morning_bridge_done
+    state: 'off'
+  - action: notify.mobile_app_s23bart
+    data:
+      title: Bridge nog niet gedaan
+      message: '{{ ["Je Bridge staat nog open. Zelfs 5 minuten telt — open Anytype
+        en schrijf alleen The Headspace.", "Nog geen Bridge vandaag. Geen druk — maar
+        ook alleen de gratitude invullen is al een win.", "De Motherlode wacht. Zelfs
+        een halve Bridge is beter dan geen Bridge. Open je Daily Log."] | random }}'
+      data:
+        tag: pkm-morning-bridge-followup
+        channel: PKM Coach
+        importance: low
+        sticky: true
+        actions:
+        - action: BRIDGE_DONE
+          title: Alsnog gedaan
+        - action: BRIDGE_SKIP
+          title: Niet vandaag
+  mode: single
+- id: '1773157226407'
+  alias: 'PKM: Midday Writing Prompt'
+  description: Weekday 12:30 writing prompt to capture Nuggets and observations. Rotates
+    through 15 Dutch prompts focused on team/leadership/knowledge capture. Sends to
+    phone and ReMarkable.
+  triggers:
+  - platform: time
+    at: '12:30:00'
+  conditions:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  actions:
+  - variables:
+      prompt_idx: '{{ states(''input_number.midday_prompt_index'') | int }}'
+      prompts:
+      - Wat heb je vanochtend geleerd dat je nergens hebt opgeschreven? Maak er een
+        Nugget van.
+      - Heb je een beslissing genomen vandaag? Schrijf op WAAROM je die keuze maakte
+        — je toekomstige zelf zal je dankbaar zijn.
+      - Welk gesprek van vandaag verdient een plek in je Daily Log? Schrijf het op
+        voor je het vergeet.
+      - Is er iets dat je team vandaag deed waar je trots op bent? Noteer het — ook
+        kleine dingen tellen.
+      - Heb je iets gezien dat beter kan in het team? Schrijf het op als observatie,
+        niet als klacht. Dat is architectuur.
+      - Waar heb je vandaag de meeste energie van gekregen? Dat is een signaal — leg
+        het vast.
+      - Is er een patroon dat je herkent in je werk deze week? Patronen zijn Nuggets
+        waard.
+      - 'Wat zou je je coach vertellen als ze nu vroeg: hoe gaat het? Schrijf dat
+        antwoord op.'
+      - Heb je iemand in het team iets zien doen dat je verraste? Positief of negatief
+        — noteer het.
+      - Kun je in een zin beschrijven wat je vanochtend hebt bereikt? Als je het niet
+        kunt, schrijf op waarom niet.
+      - Welke vraag van een collega liet je nadenken? Die vragen zijn goud — maak
+        er een Nugget van.
+      - Stel je kijkt over een maand terug op vandaag. Wat zou je willen dat je had
+        opgeschreven?
+      - Heb je vandaag iets uitgelegd aan iemand? Schrijf je uitleg op — dat is kenniscreatie.
+      - Wat is het meest onverwachte dat er vandaag gebeurde? Leg het vast.
+      - Is er iets dat je uitstelt? Schrijf het op. Uitstelgedrag is ook informatie.
+  - action: notify.mobile_app_s23bart
+    data:
+      title: Middag check-in
+      message: '{{ prompts[prompt_idx | int] }}'
+      data:
+        tag: pkm-midday
+        channel: PKM Coach
+        importance: low
+  - event: remarkable_prompt
+    event_data:
+      prompt: '{{ prompts[prompt_idx | int] }}'
+      title: Middag Check-in
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.midday_prompt_index
+    data:
+      value: '{{ ((prompt_idx | int) + 1) % 15 }}'
+  mode: single
+- id: '1773157227847'
+  alias: 'PKM: Evening Reflection'
+  description: 21:00 evening reflection prompt with rotating Dutch prompts. Acknowledges
+    if Morning Bridge was skipped. Sends to phone and ReMarkable.
+  triggers:
+  - platform: time
+    at: '21:00:00'
+  conditions:
+  - condition: state
+    entity_id: input_boolean.evening_reflection_done
+    state: 'off'
+  actions:
+  - variables:
+      prompt_idx: '{{ states(''input_number.writing_prompt_index'') | int }}'
+      bridge_done: '{{ is_state(''input_boolean.morning_bridge_done'', ''on'') }}'
+      prompts:
+      - Wat was het moeilijkste moment vandaag? Hoe heb je het opgelost?
+      - Heb je vandaag iets gedaan als architect — of alleen als uitvoerder? Reflecteer.
+      - Waar zat de meeste frictie vandaag? Is dat een patroon?
+      - Wat zou je morgen anders doen als je vandaag opnieuw kon?
+      - Heb je vandaag ruimte gemaakt voor het team om zelf beslissingen te nemen?
+      - Welk inzicht van je coaching sessie heb je vandaag toegepast?
+      - Als je je dag in drie woorden moet samenvatten, welke zijn dat?
+      - Heb je vandaag gehandeld alsof het ideale team al bestaat?
+      - Wat heb je vandaag NIET gedaan dat je eigenlijk had moeten doen? Waarom niet?
+      - Wie heeft je vandaag geholpen? Heb je dat laten merken?
+      - Beschrijf een moment vandaag waarop je bewust een keuze maakte. Waarom die
+        keuze?
+      - Wat was het meest waardevolle gesprek van vandaag? Met wie, en waarover?
+      - Heb je vandaag iets afgemaakt? Of alleen dingen gestart?
+      - Waar kijk je morgen het meest naar uit? En waar zie je tegenop?
+      - Welk onderdeel van je werk geeft je de meeste voldoening deze week?
+      - Heb je vandaag iemand laten groeien? Hoe?
+      - Wat is een ding dat je hebt geleerd maar nog nergens hebt vastgelegd?
+      - Scoorde je vandaag een win voor het team? Of alleen voor jezelf?
+      - Voelde je vandaag meer als ontwerper of als brandweerman?
+      - Wat voor leider was je vandaag? Is dat de leider die je wilt zijn?
+      - Heb je een moment gehad vandaag waarop je echt aanwezig was?
+      - Welke gewoonte wil je morgen bewust vasthouden?
+      - Waar ben je nu, om 21:00, het meest dankbaar voor?
+      - Heb je vandaag een Nugget gecreeerd? Zo niet, welke zou het zijn?
+      - Wat zou je coach zeggen als ze je dag had gezien?
+      - Heb je vandaag iets losgelaten dat je eigenlijk niet hoefde te doen?
+      - Is er een beslissing die je vandaag hebt uitgesteld? Waarom?
+      - Welke interactie met een teamlid wil je onthouden?
+      - Heb je vandaag iets gedaan dat je een maand geleden niet had gekund?
+      - Schrijf drie zinnen over vandaag. Niet meer, niet minder.
+  - action: notify.mobile_app_s23bart
+    data:
+      title: Avondreflectie — Daily Log
+      message: '{% if not bridge_done %}Je hebt vandaag geen Bridge gedaan — geen
+        stress. Maar neem nu 5 minuten om je dag af te sluiten in Anytype.
+
+
+        {% endif %}{{ prompts[prompt_idx | int] }}
+
+
+        Vul ook je habits en mood in.'
+      data:
+        tag: pkm-evening
+        channel: PKM Coach
+        importance: default
+        sticky: true
+        actions:
+        - action: REFLECTION_DONE
+          title: Reflectie gedaan
+        - action: REFLECTION_SKIP
+          title: Niet vanavond
+  - event: remarkable_prompt
+    event_data:
+      prompt: '{{ prompts[prompt_idx | int] }}'
+      title: Avondreflectie
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.writing_prompt_index
+    data:
+      value: '{{ ((prompt_idx | int) + 1) % 30 }}'
+  mode: single
+- id: '1773157229465'
+  alias: 'PKM: Weekly Review Reminder'
+  description: Sunday 19:00 weekly review reminder with checklist and streak count.
+    Push notification only.
+  triggers:
+  - platform: time
+    at: '19:00:00'
+  conditions:
+  - condition: time
+    weekday:
+    - sun
+  - condition: state
+    entity_id: input_boolean.weekly_review_done
+    state: 'off'
+  actions:
+  - action: notify.mobile_app_s23bart
+    data:
+      title: Weekreview — Zondag ritueel
+      message: 'Tijd voor je weekreview.
+
+
+        Bridge streak: {{ states(''counter.morning_bridge_streak'') }} dagen.
+
+
+        Checklist:
+
+        1. Clear the Pipes: Desktop, Downloads, ReMarkable inbox, Anytype inbox
+
+        2. Review active Projects — klopt de status nog?
+
+        3. Welke Nuggets heb je deze week gemaakt? Zijn ze gelinkt?
+
+        4. Coaching reflectie: wat heb je deze week geleerd over leiderschap?
+
+        5. Pick ONE major outcome voor volgende week.
+
+
+        Neem er 20-30 minuten voor.'
+      data:
+        tag: pkm-weekly
+        channel: PKM Coach
+        importance: high
+        sticky: true
+        actions:
+        - action: WEEKLY_DONE
+          title: Review klaar
+  mode: single
